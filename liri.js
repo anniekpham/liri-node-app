@@ -6,6 +6,7 @@ const Spotify = require('node-spotify-api')
 const [, , command, ...title] = process.argv
 const format = (e) => moment(`${e}`,'YYYY-MM-DD HH:mm:ss').format('MM/DD/YYYY')
 
+// get data from random.txt search for what it stated
 const random = data => {
     let newarr = data.split(',')
     switch (newarr[0]) {
@@ -25,16 +26,26 @@ const random = data => {
 const spotifythis = track => {
     let keys = require("./keys.js")
     let spotify = new Spotify(keys.spotify)
-    spotify.search({ type: 'track', query: track, limit: 3})
+    spotify.search({ type: 'track', query: track, limit: 1})
     // can't desructure object
-    .then((data) => console.log(data))
+    .then((data) => {
+        let artist = data.tracks.items[0].album.artists[0].name
+        let song = data.tracks.items[0].name
+        let preview = data.tracks.items[0].preview_url
+        let album = data.tracks.items[0].album.name
+        console.log(`
+        Artist: ${artist}
+        Song: ${song}
+        Preview: ${preview}
+        ALbum: ${album}
+        `)
+    })
     .catch(e => console.log(e))
-    fs.appendFile('log.txt', `${command},${title.join(' ')};`, e => e ? console.log(e): console.log('done'))
+    fs.appendFile('log.txt', `${command},${title.join(' ')};`, e => e ? console.log(e): console.log())
 }
 // search movie title
 const moviethis = movie => {
     axios.get(`http://www.omdbapi.com/?t=${movie}&apikey=d467d7fe`)
-        
     .then(({data: {Title, Released, imdbRating, Ratings: [, {Value}], Country, Language, Plot, Actors}}) => console.log(`
     Title: ${Title}
     Release Year: ${Released}
@@ -46,7 +57,7 @@ const moviethis = movie => {
     Actors: ${Actors}
     `))
     .catch(e => console.log(e, "Please Enter a Valid Title"))
-    fs.appendFile('log.txt', `${command},${title.join(' ')};`, e => e ? console.log(e): console.log('done'))
+    fs.appendFile('log.txt', `${command},${title.join(' ')};`, e => e ? console.log(e): console.log())
 
 }
 
@@ -59,7 +70,7 @@ const concertthis = artist => {
     Date: ${format(datetime)}
     `))
     .catch(e => console.log(e, "This artist has no upcoming event"))
-    fs.appendFile('log.txt', `${command},${title.join(' ')};`, e => e ? console.log(e): console.log('done'))
+    fs.appendFile('log.txt', `${command},${title.join(' ')};`, e => e ? console.log(e): console.log())
 
 }
 
